@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ガチャ確率計算機</title>
+    <link rel="stylesheet" href="static\style.css"> <!-- 外部CSSファイルをリンク -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+
+</head>
+<body>
+    <div class="container">
+        <h1>ガチャ確率計算機</h1>
+
+        <!-- 結果表示と説明 -->
+        <div class="result-container">
+            <div class="result-description">排出率 <span id="drop_rate_text" class="highlight-text">1%</span> で <span id="num_trials_text" class="highlight-text">100回</span> 回して <span id="desired_count_text" class="highlight-text">2個</span> 以上出る確率は</div>
+            <div class="result" id="result_display">--</div>
+        </div>
+        
+
+        <!-- 入力エリア -->
+        <div class="input-group">
+            <label for="desired_count" class="input-label">
+                <i class="fas fa-box-open"></i> 希望個数 (m):
+            </label>
+            <div class="input-buttons">
+                <button class="button" type="button" onclick="decrementDesiredCount()">-</button>
+                <input class="input-field" type="text" id="desired_count" value="2" size="5" oninput="validateNumberInput(this)">
+                <button class="button" type="button" onclick="incrementDesiredCount()">+</button>
+                <input type="range" id="desired_count_slider" min="1" max="10" value="2" oninput="updateDesiredCountFromSlider()">
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label for="num_trials" class="input-label">
+                <i class="fas fa-sync-alt"></i> 試行回数 (n):
+            </label>
+            <div class="input-buttons">
+                <button class="button" type="button" onclick="decrementTrials()">-</button>
+                <input class="input-field" type="text" id="num_trials_value" value="100" size="5" oninput="validateNumberInput(this)">
+                <button class="button" type="button" onclick="incrementTrials()">+</button>
+                <input type="range" id="num_trials_slider" min="1" max="1000" value="100" oninput="updateTrialsFromSlider()">
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label for="drop_rate" class="input-label">
+                <i class="fas fa-percentage"></i> 排出率 (p):
+            </label>
+            <div class="input-buttons">
+                <button class="button" type="button" onclick="decrementDropRate()">-</button>
+                <input class="input-field" type="text" id="drop_rate_value" value="1" size="5" oninput="validateNumberInput(this)">
+                <button class="button" type="button" onclick="incrementDropRate()">+</button>
+                <input type="range" id="drop_rate_slider" min="0.1" max="100" step="0.1" value="1" oninput="updateDropRateFromSlider()">
+            </div>
+        </div>
+        
+
+        <!-- 確率リスト -->
+        <div class="probability-list">
+            <div class="probability-description">試行回数ごとの排出確率:</div>
+            <div class="probability-row">
+                <span class="probability-number">0回</span><span id="prob_0">--</span>
+            </div>
+            <div class="probability-row">
+                <span class="probability-number">1回</span><span id="prob_1">--</span>
+            </div>
+            <div class="probability-row">
+                <span class="probability-number">2回</span><span id="prob_2">--</span>
+            </div>
+            <div class="probability-row">
+                <span class="probability-number">3回</span><span id="prob_3">--</span>
+            </div>
+            <div class="probability-row">
+                <span class="probability-number">4回</span><span id="prob_4">--</span>
+            </div>
+            <div class="probability-row">
+                <span class="probability-number">5回</span><span id="prob_5">--</span>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+
+    <script>
+        // 二項分布の計算
+
+// 二項分布の計算
+
+// 対数階乗の計算
+function logFactorial(n) {
+    if (n === 0 || n === 1) return 0;
+    let result = 0;
+    for (let i = 2; i <= n; i++) {
+        result += Math.log(i);
+    }
+    return result;
+}
+
+// 二項係数を対数を使って計算
+function binomialCoefficientLog(n, k) {
+    return Math.exp(logFactorial(n) - logFactorial(k) - logFactorial(n - k));
+}
+
+// 二項分布の確率を計算
+function binomialProbability(n, k, p) {
+    return binomialCoefficientLog(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
+}
+
+function calculateProbabilities() {
+    const n = parseInt(document.getElementById("num_trials_value").value);
+    const p = parseFloat(document.getElementById("drop_rate_value").value) / 100;
+    const m = parseInt(document.getElementById("desired_count").value);
+
+    document.getElementById("num_trials_text").innerText = n + "回";
+    document.getElementById("drop_rate_text").innerText = (p * 100).toPrecision(10) + "%";
+    document.getElementById("desired_count_text").innerText = m + "個";
+
+    let cumulative_prob = 0;
+    for (let k = 0; k < m; k++) {
+        cumulative_prob += binomialProbability(n, k, p);
+    }
+    const at_least_m_prob = 1 - cumulative_prob;
+    document.getElementById("result_display").textContent = (at_least_m_prob * 100).toPrecision(10) + "%";
+
+    // 各回数ごとの確率計算と表示更新
+    for (let i = 0; i <= 5; i++) {
+        const prob_value = binomialProbability(n, i, p) * 100;
+        document.getElementById(`prob_${i}`).textContent = prob_value.toPrecision(10) + "%";
+    }
+}
+
+// スライダーに合わせて入力フィールドを更新
+function updateDesiredCountFromSlider() {
+    let sliderValue = parseInt(document.getElementById("desired_count_slider").value);
+    document.getElementById("desired_count").value = sliderValue;
+    calculateProbabilities();
+}
+
+function updateTrialsFromSlider() {
+    let sliderValue = parseInt(document.getElementById("num_trials_slider").value);
+    document.getElementById("num_trials_value").value = sliderValue;
+    calculateProbabilities();
+}
+
+function updateDropRateFromSlider() {
+    let sliderValue = parseFloat(document.getElementById("drop_rate_slider").value);
+    document.getElementById("drop_rate_value").value = sliderValue.toPrecision(10);
+    calculateProbabilities();
+}
+
+// 希望個数を1増加
+function incrementDesiredCount() {
+    let count = parseInt(document.getElementById("desired_count").value);
+    if (count < 10) {  // 希望個数を10まで増やせるように変更
+        document.getElementById("desired_count").value = count + 1;
+        document.getElementById("desired_count_slider").value = count + 1;
+        calculateProbabilities();
+    }
+}
+
+// 希望個数を1減少
+function decrementDesiredCount() {
+    let count = parseInt(document.getElementById("desired_count").value);
+    if (count > 1) {
+        document.getElementById("desired_count").value = count - 1;
+        document.getElementById("desired_count_slider").value = count - 1;
+        calculateProbabilities();
+    }
+}
+
+// 試行回数を1増加
+function incrementTrials() {
+    let trials = parseInt(document.getElementById("num_trials_value").value);
+    if (trials < 1000) {
+        document.getElementById("num_trials_value").value = trials + 1;
+        document.getElementById("num_trials_slider").value = trials + 1;
+        calculateProbabilities();
+    }
+}
+
+// 試行回数を1減少
+function decrementTrials() {
+    let trials = parseInt(document.getElementById("num_trials_value").value);
+    if (trials > 1) {
+        document.getElementById("num_trials_value").value = trials - 1;
+        document.getElementById("num_trials_slider").value = trials - 1;
+        calculateProbabilities();
+    }
+}
+
+// 排出率を1増加
+function incrementDropRate() {
+    let rate = parseFloat(document.getElementById("drop_rate_value").value);
+    if (rate < 100) {
+        document.getElementById("drop_rate_value").value = (rate + 1).toPrecision(10);
+        document.getElementById("drop_rate_slider").value = (rate + 1).toFixed(1);
+        calculateProbabilities();
+    }
+}
+
+// 排出率を1減少
+function decrementDropRate() {
+    let rate = parseFloat(document.getElementById("drop_rate_value").value);
+    if (rate > 0.1) {
+        document.getElementById("drop_rate_value").value = (rate - 1).toPrecision(10);
+        document.getElementById("drop_rate_slider").value = (rate - 1).toFixed(1);
+        calculateProbabilities();
+    }
+}
+
+// エンターキーで更新する処理を追加
+function handleEnterKeyPress(event, inputId) {
+    if (event.key === "Enter") {
+        document.getElementById(inputId).blur();  // フォーカスを外して値を確定
+        calculateProbabilities();  // 計算を実行
+    }
+}
+
+// 入力フィールドの値を検証
+function validateNumberInput(input) {
+    let inputValue = input.value;
+    inputValue = inputValue.replace(/[^0-9.]/g, ''); // 数字と小数点以外を削除
+    input.value = toHalfWidth(inputValue);
+    calculateProbabilities();  // リアルタイムで反映
+}
+
+// 全角数字を半角に変換
+function toHalfWidth(str) {
+    return str.replace(/[０-９]/g, function(c) {
+        return String.fromCharCode(c.charCodeAt(0) - 0xFEE0);
+    });
+}
+
+// 初期化
+calculateProbabilities();
+
+
+
+    </script>
+</body>
+</html>
