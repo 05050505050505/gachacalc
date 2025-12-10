@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ガチャ確率計算機</title>
+    <link rel="stylesheet" href="./static/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>ガチャ確率計算機</h1>
+
+        <div class="result-container">
+            <div class="result-description">排出率 <span id="drop_rate_text" class="highlight-text">1%</span> で <span id="num_trials_text" class="highlight-text">100回</span> 回して <span id="desired_count_text" class="highlight-text">2個</span> 以上出る確率は</div>
+            <div class="result" id="result_display">--</div>
+        </div>
+
+        <div class="secondary-results">
+            <div class="stat-card">
+                <div class="stat-label"><i class="fas fa-check"></i> 少なくとも1つ当たる確率</div>
+                <div class="stat-value" id="at_least_one">--</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label"><i class="fas fa-bullseye"></i> 目標確率までの必要回数</div>
+                <div class="stat-value" id="required_trials">--</div>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="desired_count" class="input-label">
+                <i class="fas fa-box-open"></i> 希望個数 (m):
+            </label>
+            <div class="input-buttons">
+                <button class="button" type="button" id="desired_decrement">-</button>
+                <input class="input-field" type="text" id="desired_count" value="2" size="5">
+                <button class="button" type="button" id="desired_increment">+</button>
+                <input type="range" id="desired_count_slider" min="1" max="10" value="2">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="num_trials_value" class="input-label">
+                <i class="fas fa-sync-alt"></i> 試行回数 (n):
+            </label>
+            <div class="input-buttons">
+                <button class="button" type="button" id="trials_decrement">-</button>
+                <input class="input-field" type="text" id="num_trials_value" value="100" size="5">
+                <button class="button" type="button" id="trials_increment">+</button>
+                <input type="range" id="num_trials_slider" min="1" max="1000" value="100">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="drop_rate_value" class="input-label">
+                <i class="fas fa-percentage"></i> 排出率 (p):
+            </label>
+            <div class="input-buttons">
+                <button class="button" type="button" id="drop_rate_decrement">-</button>
+                <input class="input-field" type="text" id="drop_rate_value" value="1" size="5">
+                <button class="button" type="button" id="drop_rate_increment">+</button>
+                <input type="range" id="drop_rate_slider" min="0.1" max="100" step="0.1" value="1">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="target_prob_value" class="input-label">
+                <i class="fas fa-flag-checkered"></i> 目標確率 (%):
+            </label>
+            <div class="input-buttons">
+                <button class="button" type="button" id="target_prob_decrement">-</button>
+                <input class="input-field" type="text" id="target_prob_value" value="90" size="5">
+                <button class="button" type="button" id="target_prob_increment">+</button>
+                <input type="range" id="target_prob_slider" min="1" max="99" value="90">
+            </div>
+        </div>
+
+        <div class="probability-list">
+            <div class="probability-description">試行回数ごとの排出確率:</div>
+            <div class="probability-row">
+                <span class="probability-number">0回</span><span id="prob_0">--</span>
+            </div>
+            <div class="probability-row">
+                <span class="probability-number">1回</span><span id="prob_1">--</span>
+            </div>
+            <div class="probability-row">
+                <span class="probability-number">2回</span><span id="prob_2">--</span>
+            </div>
+            <div class="probability-row">
+                <span class="probability-number">3回</span><span id="prob_3">--</span>
+            </div>
+            <div class="probability-row">
+                <span class="probability-number">4回</span><span id="prob_4">--</span>
+            </div>
+            <div class="probability-row">
+                <span class="probability-number">5回</span><span id="prob_5">--</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="./static/main.js"></script>
+</body>
+</html>
